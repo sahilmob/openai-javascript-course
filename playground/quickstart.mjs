@@ -46,10 +46,10 @@ const prompt = new PromptTemplate({
 
 // console.log(resChain);
 
-const agentModel = new ChatOpenAI({
-  modelName: "gpt-3.5-turbo",
-  temperature: 0,
-});
+// const agentModel = new OpenAI({
+//   modelName: "gpt-3.5-turbo",
+//   temperature: 0,
+// });
 
 const tools = [
   new SerpAPI(process.env.SERPAPI_API_KEY, {
@@ -60,16 +60,32 @@ const tools = [
   new Calculator(),
 ];
 
-const executor = await initializeAgentExecutorWithOptions(tools, agentModel, {
-  agentType: "zero-shot-react-description",
+// const executor = await initializeAgentExecutorWithOptions(tools, agentModel, {
+//   agentType: "zero-shot-react-description",
+//   verbose: true,
+//   maxIterations: 5,
+// });
+
+// const input = "What is langchain?";
+
+// const result = await executor.call({
+//   input,
+// });
+
+const chatModel = new ChatOpenAI({
+  temperature: 0,
+  modelName: "gpt-3.5-turbo",
   verbose: true,
-  maxIterations: 5,
 });
 
-const input = "What is langchain?";
+const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+  llm: chatModel,
+  tools,
+});
 
 const result = await executor.call({
-  input,
+  input:
+    "Who is the current president of the United States?, what is their current age raised to the second power?",
 });
 
 console.log(result);
