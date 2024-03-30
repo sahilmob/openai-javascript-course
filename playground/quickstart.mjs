@@ -14,6 +14,18 @@ import { exec } from "child_process";
 // export SERPAPI_API_KEY=<>
 // Replace with your API keys!
 
-// to run, go to terminal and enter: cd playground
-// then enter: node quickstart.mjs
-console.log("Welcome to the LangChain Quickstart Module!");
+const template =
+  "You are a director if social media with 30 years of experience. Please give me some ideas for content I should write about regarding {topic}? The content is for {socialPlatform}. Translate to {language}.";
+
+const prompt = new PromptTemplate({
+  template,
+  inputVariables: ["topic", "socialPlatform", "language"],
+});
+
+const formattedPrompt = await prompt.format({
+  topic: "artificial intelligence",
+  socialPlatform: "Twitter",
+  language: "Spanish",
+});
+
+console.log(formattedPrompt);
