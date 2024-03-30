@@ -28,20 +28,48 @@ const prompt = new PromptTemplate({
 //   language: "Spanish",
 // });
 
-const model = new OpenAI({
+// const model = new OpenAI({
+//   modelName: "gpt-3.5-turbo",
+//   temperature: 0.9,
+// });
+
+// const chain = new LLMChain({
+//   prompt,
+//   llm: model,
+// });
+
+// const resChain = await chain.call({
+//   topic: "artificial intelligence",
+//   socialPlatform: "Twitter",
+//   language: "Spanish",
+// });
+
+// console.log(resChain);
+
+const agentModel = new ChatOpenAI({
   modelName: "gpt-3.5-turbo",
-  temperature: 0.9,
+  temperature: 0,
 });
 
-const chain = new LLMChain({
-  prompt,
-  llm: model,
+const tools = [
+  new SerpAPI(process.env.SERPAPI_API_KEY, {
+    location: "Dallas, Texas, United States",
+    hl: "en",
+    gl: "us",
+  }),
+  new Calculator(),
+];
+
+const executor = await initializeAgentExecutorWithOptions(tools, agentModel, {
+  agentType: "zero-shot-react-description",
+  verbose: true,
+  maxIterations: 5,
 });
 
-const resChain = await chain.call({
-  topic: "artificial intelligence",
-  socialPlatform: "Twitter",
-  language: "Spanish",
+const input = "What is langchain?";
+
+const result = await executor.call({
+  input,
 });
 
-console.log(resChain);
+console.log(result);
