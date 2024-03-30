@@ -22,10 +22,26 @@ const prompt = new PromptTemplate({
   inputVariables: ["topic", "socialPlatform", "language"],
 });
 
-const formattedPrompt = await prompt.format({
+// const formattedPrompt = await prompt.format({
+//   topic: "artificial intelligence",
+//   socialPlatform: "Twitter",
+//   language: "Spanish",
+// });
+
+const model = new OpenAI({
+  modelName: "gpt-3.5-turbo",
+  temperature: 0.9,
+});
+
+const chain = new LLMChain({
+  prompt,
+  llm: model,
+});
+
+const resChain = await chain.call({
   topic: "artificial intelligence",
   socialPlatform: "Twitter",
   language: "Spanish",
 });
 
-console.log(formattedPrompt);
+console.log(resChain);
