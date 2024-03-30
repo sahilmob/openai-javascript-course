@@ -78,14 +78,41 @@ const chatModel = new ChatOpenAI({
   verbose: true,
 });
 
-const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
-  llm: chatModel,
-  tools,
+// const executor = PlanAndExecuteAgentExecutor.fromLLMAndTools({
+//   llm: chatModel,
+//   tools,
+// });
+
+// const result = await executor.call({
+//   input:
+//     "Who is the current president of the United States?, what is their current age raised to the second power?",
+// });
+
+// console.log(result);
+
+const llm = new OpenAI({
+  modelName: "gpt-3.5-turbo",
+});
+const memory = new BufferMemory();
+const conversationChain = new ConversationChain({
+  llm,
+  memory,
 });
 
-const result = await executor.call({
-  input:
-    "Who is the current president of the United States?, what is their current age raised to the second power?",
+const input1 = "Hey, my name is sahil";
+
+const res1 = await conversationChain.call({
+  input: input1,
 });
 
-console.log(result);
+console.log(input1);
+console.log(res1);
+
+const input2 = "What is my name?";
+
+const res2 = await conversationChain.call({
+  input: input2,
+});
+
+console.log(input2);
+console.log(res2);
