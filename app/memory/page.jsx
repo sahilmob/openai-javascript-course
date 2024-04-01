@@ -10,8 +10,38 @@ import "../globals.css";
 const Memory = () => {
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState(null);
+  const [messages, setMessages] = useState([
+    {
+      type: "bot",
+      text: "Hi there! What's your name and favorite food?",
+    },
+  ]);
 
-  const handleSubmitPrompt = async () => {};
+  const handleSubmitPrompt = async () => {
+    try {
+      const response = await fetch("/api/memory", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          input: prompt,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error! Status: ${response.status}`);
+      }
+
+      const searchRes = await response.json();
+      setPrompt("");
+
+      console.log({ searchRes });
+    } catch (e) {
+      console.error(e);
+      setError(e);
+    }
+  };
 
   const handlePromptChange = (e) => {
     setPrompt(e.target.value);
@@ -32,7 +62,7 @@ const Memory = () => {
         }
         rightChildren={
           <>
-            <ResultWithSources messages={[]} pngFile="brain" />
+            <ResultWithSources messages={messages} pngFile="brain" />
             <PromptBox
               prompt={prompt}
               error={error}
