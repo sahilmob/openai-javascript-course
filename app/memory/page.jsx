@@ -16,9 +16,19 @@ const Memory = () => {
       text: "Hi there! What's your name and favorite food?",
     },
   ]);
+  const [firstMsg, setFirstMsg] = useState(true);
 
   const handleSubmitPrompt = async () => {
     try {
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: prompt,
+          type: "user",
+          sourceDocuments: null,
+        },
+      ]);
+
       const response = await fetch("/api/memory", {
         method: "POST",
         headers: {
@@ -26,8 +36,11 @@ const Memory = () => {
         },
         body: JSON.stringify({
           input: prompt,
+          firstMsg,
         }),
       });
+
+      setFirstMsg(false);
 
       if (!response.ok) {
         throw new Error(`HTTP Error! Status: ${response.status}`);
@@ -36,7 +49,15 @@ const Memory = () => {
       const searchRes = await response.json();
       setPrompt("");
 
-      console.log({ searchRes });
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: searchRes.output.response,
+          type: "bot",
+          sourceDocuments: null,
+        },
+      ]);
+      setError(null);
     } catch (e) {
       console.error(e);
       setError(e);

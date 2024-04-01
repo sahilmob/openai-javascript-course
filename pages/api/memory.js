@@ -12,8 +12,21 @@ export default async function handler(req, res) {
       throw new Error("No input!");
     }
 
+    if (firstMsg) {
+      model = new OpenAI({
+        modelName: "gpt-3.5-turbo",
+      });
+      memory = new BufferMemory();
+      chain = new ConversationChain({
+        llm: model,
+        memory,
+      });
+    }
+
+    const response = await chain.call({ input });
+
     return res.status(200).json({
-      output: "response",
+      output: response,
     });
   } else {
     res.status(405).json({ message: "Only POST is allowed" });
