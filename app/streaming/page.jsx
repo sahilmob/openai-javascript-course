@@ -5,7 +5,6 @@ import PromptBox from "../components/PromptBox";
 import ResultStreaming from "../components/ResultStreaming";
 import Title from "../components/Title";
 import TwoColumnLayout from "app/components/TwoColumnLayout";
-import { setDefaultResultOrder } from "dns/promises";
 
 const Streaming = () => {
   const [prompt, setPrompt] = useState("");
