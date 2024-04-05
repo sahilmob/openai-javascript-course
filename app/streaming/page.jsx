@@ -5,16 +5,16 @@ import PromptBox from "../components/PromptBox";
 import ResultStreaming from "../components/ResultStreaming";
 import Title from "../components/Title";
 import TwoColumnLayout from "app/components/TwoColumnLayout";
+import { setDefaultResultOrder } from "dns/promises";
 
 const Streaming = () => {
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState(null);
   const [data, setData] = useState("");
-  //   add code
+  const [source, setSource] = useState(null);
 
   const processToken = (token) => {
-    // add code
-    return;
+    return token.replace(/\\n/g, "\n").replace(/\"/g, "");
   };
 
   const handlePromptChange = (e) => {
@@ -23,7 +23,29 @@ const Streaming = () => {
 
   const handleSubmit = async () => {
     try {
-      //   add code
+      await fetch("/api/streaming", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ input: prompt }),
+      });
+
+      if (source) {
+        source.close();
+      }
+
+      const newSource = new EventSource("/api/streaming");
+      setSource(newSource);
+
+      newSource.addEventListener("newToken", (e) => {
+        const token = processToken(e.data);
+        setData((prev) => prev + token);
+      });
+
+      newSource.addEventListener("end", () => {
+        newSource.close();
+      });
     } catch (err) {
       console.error(err);
       setError(error);
@@ -31,7 +53,13 @@ const Streaming = () => {
   };
 
   // Clean up the EventSource on component unmount
-  //   add code
+  useEffect(() => {
+    return () => {
+      if (source) {
+        source.close();
+      }
+    };
+  }, []);
   return (
     <>
       <Title emoji="💭" headingText="Streaming" />
