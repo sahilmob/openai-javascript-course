@@ -11,10 +11,37 @@ export default async function handler(req, res) {
     console.log("Inside the PDF handler");
     // Enter your code here
     /** STEP ONE: LOAD DOCUMENT */
+    const bookPath =
+      "/Users/sahilmobaidin/Desktop/myprojects/openai-javascript-course/data/document_loaders/naval-ravikant-book.pdf";
+    const loader = new PDFLoader(bookPath);
 
+    const docs = await loader.load();
     // Chunk it
 
-    // Reduce the size of the metadata
+    if (docs.length === 0) {
+      console.log("No docs found");
+      return;
+    }
+
+    const splitter = new CharacterTextSplitter({
+      separator: " ",
+      chunkSize: 250,
+      chunkOverlap: 10,
+    });
+
+    const splitDocs = await splitter.splitDocuments(docs);
+
+    // reduce metadata size
+    const reduceDocs = splitDocs.map((d) => {
+      const reducedMetadata = { ...d.metadata };
+      delete reducedMetadata.pdf;
+      return new Document({
+        pageContent: d.pageContent,
+        metadata: reducedMetadata,
+      });
+    });
+
+    console.log(splitDocs[0]);
 
     /** STEP TWO: UPLOAD TO DATABASE */
 
