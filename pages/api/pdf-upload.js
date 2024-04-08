@@ -1,5 +1,5 @@
 import { PDFLoader } from "langchain/document_loaders/fs/pdf";
-import { PineconeClient } from "@pinecone-database/pinecone";
+import { Pinecone } from "@pinecone-database/pinecone";
 import { Document } from "langchain/document";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { PineconeStore } from "langchain/vectorstores/pinecone";
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const splitDocs = await splitter.splitDocuments(docs);
 
     // reduce metadata size
-    const reduceDocs = splitDocs.map((d) => {
+    const reducedDocs = splitDocs.map((d) => {
       const reducedMetadata = { ...d.metadata };
       delete reducedMetadata.pdf;
       return new Document({
@@ -41,11 +41,27 @@ export default async function handler(req, res) {
       });
     });
 
-    console.log(splitDocs[0]);
+    console.log(reducedDocs[0]);
 
     /** STEP TWO: UPLOAD TO DATABASE */
 
+    // const client = new PineconeClient();
+    const client = new Pinecone();
+
+    // await client({
+    //   apiKey: process.env.PINECONE_API_KEY,
+    // });
+
+    const index = client.Index("langchain-js");
+
     // upload documents to Pinecone
+
+    await PineconeStore.fromDocuments(reducedDocs, new OpenAIEmbeddings(), {
+      pineconeIndex: index,
+    });
+
+    console.log("successfully uploaded to database");
+
     return res.status(200).json({ result: docs });
   } else {
     res.status(405).json({ message: "Method not allowed" });
